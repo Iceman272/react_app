@@ -1,0 +1,14 @@
+{
+  "resourceName": "mybucketforreact",
+  "policyUUID": "0221dba8",
+  "bucketName": "reactappb2bd678abbb74183bb7cf5ca7a4d7753",
+  "storageAccess": "auth",
+  "guestAccess": [],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}
