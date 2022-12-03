@@ -2,8 +2,16 @@
 # all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
 input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONLY!
 
-type Note @model @auth(rules: [ { allow: public } ] ){
+# allow data "owner" (student) and any Advisors to see. public is temp until groups are fixed
+type Note @model @auth(rules: [ { allow: public },{ allow: groups, groups: ["Advisor"] }, { allow: owner } ] ){
   id: ID!
-  name: String!
-  description: String
+  owner: String
+  order_number: Int!
+  course_name: String
+  course_number: String
+  credit: Int
+  grade: String
+  taken: Boolean!
+  semester_taken: String
 }
+

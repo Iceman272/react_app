@@ -5,7 +5,8 @@
     "\\amplify\\backend",
     "\\amplify\\backend\\api",
     "\\amplify\\backend\\api\\reactapp",
-    "\\src"
+    "\\src",
+    "\\src\\graphql"
   ],
   "PreviewInSolutionExplorer": false
 }
