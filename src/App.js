@@ -29,7 +29,6 @@ let subArray = []
 const App = ({ signOut }) => {
   const [items, setItems] = useState([]);
   var slideData = [];
-  const [ notes, setNotes ] = useState([])
   
 
   const [state, setState] = useState({
@@ -54,12 +53,12 @@ const App = ({ signOut }) => {
     })
   );
   //addes results to notes array
-  setNotes(notesFromAPI);
+  setItems(notesFromAPI);
   
   //update courseData
   updateExportData();
-  console.log("data fetch")
-  console.log(courseData);
+  //console.log("data fetch")
+  //console.log(courseData);
 }
     //function that adds new courses to the database
    async function createNote({order_number, course_name,course_number, credit, grade, taken, semester_taken }) {
@@ -82,8 +81,8 @@ const App = ({ signOut }) => {
 
     //funtion to detele an entry from the database
    async function deleteNote({ id, course_name }) {
-  const newNotes = notes.filter((note) => note.id !== id);
-  setNotes(newNotes);
+  const newNotes = items.filter((note) => note.id !== id);
+  setItems(newNotes);
   await Storage.remove(course_name);
   await API.graphql({
     query: deleteNoteMutation,
@@ -113,15 +112,15 @@ async function updateData({ id, order_number, course_name,course_number, credit,
 
 //possible to be reworked or deleted. Creat function for loops
 async function tempCreateNote() {
-for(let i = 0; i < notes.length; i++){
+for(let i = 0; i < items.length; i++){
   const data = {
                 order_number: i,
-                course_name: notes[i]['course_name'],
-                course_number: notes[i]['course_number'],
-                credit: notes[i]['credits'],
-                grade: notes[i]['grade'],
-                taken: notes[i]['taken'],
-                semester_taken: notes[i]['semester_taken'],
+                course_name: items[i]['course_name'],
+                course_number: items[i]['course_number'],
+                credit: items[i]['credits'],
+                grade: items[i]['grade'],
+                taken: items[i]['taken'],
+                semester_taken: items[i]['semester_taken'],
                 };
   await API.graphql({
     query: createNoteMutation,
@@ -129,6 +128,7 @@ for(let i = 0; i < notes.length; i++){
   });}
   fetchNotes();
 }
+
 
 //[not working]fetches only current user's information
  /*
@@ -158,17 +158,9 @@ async function UserFetch(currentUser) {
 
   //[not working] function to update courseData with current data from the database  
   function updateExportData(){
-  console.log(notes.length)
-    for(let i = 0; i < notes.length; i++){
-        courseData[i]= new Array(i,
-                notes[i]['course_name'],
-                notes[i]['course_number'],
-                notes[i]['credits'],
-                notes[i]['grade'],
-                notes[i]['taken'],
-                notes[i]['semester_taken']);
-    }
-    
+    console.log("data update");
+    //console.log(items.length);
+    //courseData = items
   }
 
   //function to reads the excel file and convert data to array
@@ -273,9 +265,20 @@ async function UserFetch(currentUser) {
                 z++;
             } 
             //[needs fixing] adds data 
-            //checks if any fetched data[x][course name]||[course number]== newArray[i][course name]||[course number]
+            if((items.filter(x => x.course_number === newArray[i]['course_number']).length > 0)||(items.filter(x => x.course_name === newArray[i]['course_name']).length > 0)){
+                if((items.filter(x => x.course_number === newArray[i]['course_number']).length > 0)){
+                    updateData(items.filter(x => x.course_number === newArray[i]['course_number']).id,i,newArray[i]['course_name'],newArray[i]['course_number'],newArray[i]['credits'],newArray[i]['grade'],newArray[i]['taken'],newArray[i]['semester_taken']);
+                }
+                else {
+                    updateData(items.filter(x => x.course_name === newArray[i]['course_name']).id,i,newArray[i]['course_name'],newArray[i]['course_number'],newArray[i]['credits'],newArray[i]['grade'],newArray[i]['taken'],newArray[i]['semester_taken']);
+                }
+
+                //updateData(newArray[i]);
+            }
+            else{
+                createNote(newArray[i]);
+            }
             //if true update else createNote
-            createNote(newArray[i]);
             courseData[i] = new Array(newArray[i]['course_number'],newArray[i]['course_name'],newArray[i]['credits'],newArray[i]['grade'],newArray[i]['taken']);
         }
           
@@ -325,73 +328,10 @@ async function UserFetch(currentUser) {
     <div>
     <View className="App">
       <Heading level={1}>AWS Working Test</Heading>
-      
-      <View as="form" margin="3rem 0" onSubmit={createNote}>
-        <Flex direction="row" justifyContent="center">
-          <TextField
-            name="order_number"
-            placeholder= "order_number"
-            label="Note order number"
-            labelHidden
-            variation="quiet"
-            required
-          />
-          <TextField
-            name="course_name"
-            placeholder="Course Name"
-            label="Note name"
-            labelHidden
-            variation="quiet"
-            required
-          />
-          <TextField
-            name="course_number"
-            placeholder="Bio 101"
-            label="Note course number"
-            labelHidden
-            variation="quiet"
-            required
-          />
-          <TextField
-            name="credit"
-            placeholder= "credit"
-            label="Note credit"
-            labelHidden
-            variation="quiet"
-            required
-          />
-          <TextField
-            name="grade"
-            placeholder="grade"
-            label="Note grade"
-            labelHidden
-            variation="quiet"
-            required
-          />
-          <TextField
-            name="taken"
-            placeholder= "bool"
-            label="Note taken"
-            labelHidden
-            variation="quiet"
-            required
-          />
-          <TextField
-            name="semester_taken"
-            placeholder="spring"
-            label="Note semester_taken"
-            labelHidden
-            variation="quiet"
-            required
-          />
-          <Button type="submit" variation="primary">
-            Create Note
-          </Button>
-        </Flex>
-      </View>
-      <Heading level={2}>Current Notes</Heading>
+     
+      <Heading level={2}>Current items</Heading>
       <View margin="3rem 0">
-        {notes.map((note) => (
+        {items.map((note) => (
   <Flex
     key={note.id || note.name}
     direction="row"
