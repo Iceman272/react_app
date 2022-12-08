@@ -22,8 +22,6 @@ import * as XLSX from "xlsx";
 import SlidingPane from "react-sliding-pane";
 import "react-sliding-pane/dist/react-sliding-pane.css";
 
-//exports array of course data 
-export const courseData =[];
 
 let subArray = []
 const App = ({ signOut }) => {
@@ -55,10 +53,6 @@ const App = ({ signOut }) => {
   //addes results to notes array
   setItems(notesFromAPI);
   
-  //update courseData
-  updateExportData();
-  //console.log("data fetch")
-  //console.log(courseData);
 }
     //function that adds new courses to the database
    async function createNote({order_number, course_name,course_number, credit, grade, taken, semester_taken }) {
@@ -91,9 +85,13 @@ const App = ({ signOut }) => {
 
 }
 //funtion to update an element in the database
-async function updateData({ id, order_number, course_name,course_number, credit, grade, taken, semester_taken }){
+async function updateData({ order_number, course_name,course_number, credit, grade, taken, semester_taken }){
+    //const newNotes = items.filter((note) => note.course_number === course_number);
+    //if(newNotes.length<0){
+      //  newNotes = items.filter((note) => note.course_name === course_name);
+    //}
     const data = {
-                id: id,
+                id: items[order_number].id,
                 order_number: order_number,
                 course_name: course_name,
                 course_number: course_number,
@@ -154,13 +152,6 @@ async function UserFetch(currentUser) {
     if(state.isPaneOpen == false){
         setStateUntaken({ isPaneOpen: true })
     }
-  }
-
-  //[not working] function to update courseData with current data from the database  
-  function updateExportData(){
-    console.log("data update");
-    //console.log(items.length);
-    //courseData = items
   }
 
   //function to reads the excel file and convert data to array
@@ -266,20 +257,13 @@ async function UserFetch(currentUser) {
             } 
             //[needs fixing] adds data 
             if((items.filter(x => x.course_number === newArray[i]['course_number']).length > 0)||(items.filter(x => x.course_name === newArray[i]['course_name']).length > 0)){
-                if((items.filter(x => x.course_number === newArray[i]['course_number']).length > 0)){
-                    updateData(items.filter(x => x.course_number === newArray[i]['course_number']).id,i,newArray[i]['course_name'],newArray[i]['course_number'],newArray[i]['credits'],newArray[i]['grade'],newArray[i]['taken'],newArray[i]['semester_taken']);
-                }
-                else {
-                    updateData(items.filter(x => x.course_name === newArray[i]['course_name']).id,i,newArray[i]['course_name'],newArray[i]['course_number'],newArray[i]['credits'],newArray[i]['grade'],newArray[i]['taken'],newArray[i]['semester_taken']);
-                }
-
-                //updateData(newArray[i]);
+            console.log("Update")    
+            updateData(newArray[i]);
             }
             else{
+            console.log("Create")
                 createNote(newArray[i]);
             }
-            //if true update else createNote
-            courseData[i] = new Array(newArray[i]['course_number'],newArray[i]['course_name'],newArray[i]['credits'],newArray[i]['grade'],newArray[i]['taken']);
         }
           
 
@@ -367,133 +351,6 @@ async function UserFetch(currentUser) {
           readExcel(file);
         }}
       />
-
-      <button onClick={() => getSlidingData('CSCI-120') }>
-        Click me to open right pane!
-      </button>
-
-      <button onClick={() => getUntakenSlidingData() }>
-        Click me to open Untaken Class!
-      </button>
-      
-
-      <SlidingPane
-        className="some-custom-class"
-        overlayClassName="some-custom-overlay-class"
-        isOpen={state.isPaneOpen}
-        title="Course Details"
-        subtitle="Optional subtitle."
-        width={window.innerWidth < 600 ? "100%" : "500px"}
-        onRequestClose={() => {
-          // triggered on "<" on left top click or on outside click
-          setState({ isPaneOpen: false });
-        }}
-      >
-        <div class="Detail_info">
-            <div class="Detail_Name">
-                <h1>slideData[2]</h1>
-                <p>slideData[0]</p>
-            </div>
-            <div class="Detail_section">
-                <h4>Prerequisite: </h4>
-                <p>slideData[3]</p>
-                <h4>credits: </h4>
-                <p>slideData[1]</p>
-            </div>
-            <div class="Detail_semester">
-                <h4>Associated semester:</h4>
-                <p>slideData[4]</p>
-            </div>
-            <div class="Detail_Summary">
-                <h4>Course Description:</h4>
-                <pre>
-                slideData[5]
-                </pre>
-            </div>
-        </div>
-
-        <br />
-      </SlidingPane>
-
-      <SlidingPane
-        className="some-custom-class"
-        overlayClassName="some-custom-overlay-class"
-        isOpen={stateUntaken.isPaneOpen}
-        title="Untaken Courses"
-        subtitle="Optional subtitle."
-        width={window.innerWidth < 600 ? "100%" : "500px"}
-        onRequestClose={() => {
-          // triggered on "<" on left top click or on outside click
-          setStateUntaken({ isPaneOpen: false });
-        }}
-      >
-        <div>
-            <table class="table container 2">
-        <thead>
-          <tr>
-            <th scope="col">course_number</th>
-            <th scope="col">Name</th>
-            <th scope="col">Credits</th>
-            <th scope="col">Grade</th>
-          </tr>
-        </thead>
-        <tbody>
-          {subArray.map((d) => (
-            <tr key={d.Item}>
-              <th>{d['course_number']}</th>
-              <td>{d['course_name']}</td>
-              <td>{d['credits']}</td>
-              <td>{d['grade']}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-        </div>
-      </SlidingPane>
-
-      <table class="table container">
-        <thead>
-          <tr>
-            <th scope="col">course_number</th>
-            <th scope="col">Name</th>
-            <th scope="col">Credits</th>
-            <th scope="col">Grade</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((d) => (
-            <tr key={d.Item}>
-              <th>{d['course_number']}</th>
-              <td>{d['course_name']}</td>
-              <td>{d['credits']}</td>
-              <td>{d['grade']}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <h3>not taken courses </h3>
-
-      <table class="table container 2">
-        <thead>
-          <tr>
-            <th scope="col">course_number</th>
-            <th scope="col">Name</th>
-            <th scope="col">Credits</th>
-            <th scope="col">Grade</th>
-          </tr>
-        </thead>
-        <tbody>
-          {subArray.map((d) => (
-            <tr key={d.Item}>
-              <th>{d['course_number']}</th>
-              <td>{d['course_name']}</td>
-              <td>{d['credits']}</td>
-              <td>{d['grade']}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 }
